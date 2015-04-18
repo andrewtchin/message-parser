@@ -1,4 +1,5 @@
 import json
+import re
 
 
 class Message(object):
@@ -8,28 +9,31 @@ class Message(object):
         self.data = {}
 
     def parse(self):
+        """ TODO: pretty"""
         tokens = self.message.split()
         for token in tokens:
             if token.startswith('@'):
-                self.mention(token)
+                self.add_mention(token)
             elif token.startswith('(') and token.endswith(')'):
-                self.emoticon(token)
-            elif self.url(token) == True:
-                self.link(token)
+                self.add_emoticon(token)
+            elif self.url(token):
+                self.add_link(token)
+            elif self.email(token):
+                self.add_email(token)
 
         return json.dumps(self.data, sort_keys=True, indent=2)
 
-    def mention(self, user):
+    def add_mention(self, user):
         if not self.data.get('mentions'):
             self.data['mentions'] = list()
         self.data['mentions'].append(user.lstrip('@'))
 
-    def emoticon(self, emoticon):
+    def add_emoticon(self, emoticon):
         if not self.data.get('emoticons'):
             self.data['emoticons'] = list()
         self.data['emoticons'].append(emoticon.strip('()'))
 
-    def link(self, url):
+    def add_link(self, url):
         if not self.data.get('links'):
             self.data['links'] = list()
         title = self.get_title(url)
@@ -37,7 +41,6 @@ class Message(object):
 
     def url(self, token):
         """Check to see if a token is a url.
-        TODO: check for email addresses
         """
         url_prefixes = ['http://', 'https://', 'ftp://', 'ssh://']
         for prefix in url_prefixes:
@@ -48,10 +51,19 @@ class Message(object):
     def get_title(self, url):
         return None
 
+    def add_email(self, email):
+        if not self.data.get('emails'):
+            self.data['emails'] = list()
+        self.data['emails'].append(email)
+
+    def email(self, token):
+        if re.match(r"[^@]+@[^@]+\.[^@]+", token):
+            return True
+        return False
 
 def main():
     test_input = '@foo hello world (allthethings) @bar https://example.com\
-                  (notbad) ftp://filez.com bye! asdf@asdf.com'
+                  (notbad) ftp://filez.com bye! asdf@asdf.com fake@fake,com'
 
     while True:
         input = raw_input('>')

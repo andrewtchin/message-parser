@@ -50,6 +50,9 @@ that matches the tokenized attribute.
 * No upper bound on length of username.
 * URLs are HTTP(S) because retrieving titles for other protocols would
 not be relevant.
+* Message string can be a string of any length, subject to memory limitations.
+* Input validation is handled by the regex that specifies the attributes
+we are interested in and will ignore any tokens that do not match.
 
 ### Limitations
 

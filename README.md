@@ -18,6 +18,7 @@ python message.py
 
 
 Enter the message string to parse at the prompt.
+Press Enter without providing input to use provided sample input string.
 
 ### Unittests
 
@@ -37,9 +38,11 @@ To modify the attributes we search for, add a regex group
 that matches the tokenized attribute.
 
 ### Specifications
-* Mentions - start with '@' and end with non-alphanumeric character
-* Emoticons - 1 to 15 alphanumeric characters enclosed by parenthesis
-* Links - URL and page title
+* Accept chat message string.
+* Mentions - start with '@' and end with non-alphanumeric character.
+* Emoticons - 1 to 15 alphanumeric characters enclosed by parenthesis.
+* Links - URL and page title.
+* Output JSON of interesting message contents.
 
 ### Assumptions
 * No upper bound on length of username.

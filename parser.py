@@ -1,6 +1,8 @@
 import json
 import re
-import requests
+import urllib2
+
+from bs4 import BeautifulSoup
 
 
 def ensure_key(func):
@@ -21,21 +23,13 @@ class Message(object):
     def parse_string(self, tokens):
         for token in tokens:
             if token.startswith('@'):
-                # re.match(r'^@\w+$', token)
                 self.add_attribute('mentions', self.get_mention(token))
             elif token.startswith('(') and token.endswith(')'):
-                # re.match(r'^\(\w+\)$', emoticon)
                 self.add_attribute('emoticons', self.get_emoticon(token))
             elif self.check_url(token):
-                # https://daringfireball.net/2010/07/improved_regex_for_matching_urls
-                # re.match(r'(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:".,<>?]))', url)
                 self.add_attribute('links', self.get_link(token))
-            elif self.check_email(token):
-                # re.match(r'[^@]+@[^@]+\.[^@]+', token)
-                self.add_attribute('emails', token)
 
     def parse_re(self, tokens):
-        # https://rushi.wordpress.com/2008/04/14/simple-regex-for-matching-urls/
         regex = re.compile(r'(?P<mention>^@\w+$)|(?P<emoticon>^\(\w+\)$)|(?P<url>^https?://([-\w\.]+)+(:\d+)?(/([\w/_\.]*(\?\S+)?)?)?$)')
         for token in tokens:
             result = regex.match(token)
@@ -66,27 +60,15 @@ class Message(object):
         title = self.get_title(url)
         return {'url': url, "title": title}
 
-    def check_url(self, token):
-        """Check to see if a token is a url.
-        """
-        url_prefixes = ['http://', 'https://', 'ftp://', 'ssh://']
-        for prefix in url_prefixes:
-            if token.startswith(prefix):
-                return True
-        return False
-
     def get_title(self, url):
-        return None
-
-    def check_email(self, token):
-        if re.match(r"[^@]+@[^@]+\.[^@]+", token):
-            return True
-        return False
+        page = BeautifulSoup(urllib2.urlopen(url))
+        return page.title.string
 
 
 def main():
     test_input = '@foo hello world (allthethings) @bar https://example.com\
-                  (notbad) ftp://filez.com bye! asdf@asdf.com fake@fake,com'
+                  (notbad) ftp://filez.com asdf@asdf.com fake@fake,com\
+                  http://google.com https://en.wikipedia.org/wiki/Computer bye!'
 
     while True:
         input = raw_input('>')

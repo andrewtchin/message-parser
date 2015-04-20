@@ -6,8 +6,11 @@ from message import Message
 class TestMessage(unittest.TestCase):
 
     MENTION = '@test_mention'
+    MENTION_RESULT = 'test_mention'
     EMOTICON = '(test_emoticon)'
+    EMOTICON_RESULT = 'test_emoticon'
     LINK = 'http://example.com'
+    LINK_TITLE = 'Example Domain'
 
     def setUp(self):
         self.message = Message()
@@ -56,12 +59,12 @@ class TestMessage(unittest.TestCase):
                                          TestMessage.LINK])
         result = self.message.parse()
         message_dict = {
-                           'mentions': ['test_mention'],
-                           'emoticons': ['test_emoticon'],
+                           'mentions': [TestMessage.MENTION_RESULT],
+                           'emoticons': [TestMessage.EMOTICON_RESULT],
                            'links': [
                                {
-                                   'title': 'Example Domain',
-                                   'url': 'http://example.com'
+                                   'title': TestMessage.LINK_TITLE,
+                                   'url': TestMessage.LINK
                                }
                            ]
                        }
@@ -79,14 +82,16 @@ class TestMessage(unittest.TestCase):
 
     def test_get_mention(self):
         result = self.message.get_mention(TestMessage.MENTION)
-        self.assertEqual(result, 'test_mention')
+        self.assertEqual(result, TestMessage.MENTION_RESULT)
 
-        result = self.message.get_mention(''.join([TestMessage.MENTION, '!']))
-        self.assertEqual(result, 'test_mention')
+        result = self.message.get_mention(''.join([TestMessage.MENTION,
+                                                   '!',
+                                                   'test']))
+        self.assertEqual(result, TestMessage.MENTION_RESULT)
 
     def test_get_emoticon(self):
         result = self.message.get_emoticon(TestMessage.EMOTICON)
-        self.assertEqual(result, 'test_emoticon')
+        self.assertEqual(result, TestMessage.EMOTICON_RESULT)
 
     def test_get_link(self):
         result = self.message.get_link(TestMessage.LINK)

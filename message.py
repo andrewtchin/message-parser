@@ -11,21 +11,22 @@ class Message(object):
         self.message = message
         self.data = {}
 
-    def parse_regex(self, tokens):
-        regex = re.compile(r'(?P<mention>^@\w+$)|(?P<emoticon>^\(\w+\)$)|(?P<url>^https?://([-\w\.]+)+(:\d+)?(/([\w/_\.]*(\?\S+)?)?)?$)')
-        for token in tokens:
-            result = regex.match(token)
-            if result:
-                if result.groupdict().get('emoticon'):
-                    self.add_attribute('emoticons', self.get_emoticon(token))
-                elif result.groupdict().get('mention'):
-                    self.add_attribute('mentions', self.get_mention(token))
-                elif result.groupdict().get('url'):
-                    self.add_attribute('links', self.get_link(token))
+    def parse_regex(self, token):
+        regex = re.compile(r'(?P<mentions>^@\w+$)|(?P<emoticons>^\(\w+\)$)|(?P<links>^https?://([-\w\.]+)+(:\d+)?(/([\w/_\.]*(\?\S+)?)?)?$)')
+        return regex.match(token)
 
     def parse(self):
         tokens = self.message.split()
-        self.parse_regex(tokens)
+        for token in tokens:
+            result = self.parse_regex(token)
+            if result:
+                if result.groupdict().get('emoticons'):
+                    self.add_attribute('emoticons', self.get_emoticon(token))
+                elif result.groupdict().get('mentions'):
+                    self.add_attribute('mentions', self.get_mention(token))
+                elif result.groupdict().get('links'):
+                    self.add_attribute('links', self.get_link(token))
+
         return json.dumps(self.data, sort_keys=True, indent=2)
 
     def add_attribute(self, key, value):

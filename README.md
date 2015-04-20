@@ -47,18 +47,23 @@ that matches the tokenized attribute.
 
 ### Assumptions
 
-* No upper bound on length of username.
+* Message string will be truncated to a max message length (default 1024000 bytes).
+* Mention token must begin with '@'
+* Link token must begin with http:// or https://.
+* No upper bound on length of username, subject to max message length.
 * URLs are HTTP(S) because retrieving titles for other protocols would
 not be relevant.
-* Message string can be a string of any length, subject to memory limitations.
 * Input validation is handled by the regex that specifies the attributes
 we are interested in and will ignore any tokens that do not match.
+
 
 ### Limitations
 
 * URL regex will only match HTTP(S) URLs. I used a simple regex, but the
 regex could be improved to match other protocols or cases.
 * Does not handle matching attributes that span multiple tokens.
+* Does not handle matching multiple emoticons within a single token. Matches the
+first emoticon within the token.
 
 ### Sources
 

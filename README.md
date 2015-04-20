@@ -2,7 +2,7 @@
 
 ### Summary
 
-This module accepts a string representing a chat message and extracts
+The Message class accepts a string representing a chat message and extracts
 interesting information from it.
 
 ### How to run
@@ -38,6 +38,7 @@ To modify the attributes we search for, add a regex group
 that matches the tokenized attribute.
 
 ### Specifications
+
 * Accept chat message string.
 * Mentions - start with '@' and end with non-alphanumeric character.
 * Emoticons - 1 to 15 alphanumeric characters enclosed by parenthesis.
@@ -45,18 +46,19 @@ that matches the tokenized attribute.
 * Output JSON of interesting message contents.
 
 ### Assumptions
+
 * No upper bound on length of username.
 * URLs are HTTP(S) because retrieving titles for other protocols would
 not be relevant.
 
 ### Limitations
 
-* No input validation is performed on the input message.
 * URL regex will only match HTTP(S) URLs. I used a simple regex, but the
 regex could be improved to match other protocols or cases.
 * Does not handle matching attributes that span multiple tokens.
 
 ### Sources
+
 https://rushi.wordpress.com/2008/04/14/simple-regex-for-matching-urls/
 https://daringfireball.net/2010/07/improved_regex_for_matching_urls
 http://stackoverflow.com/questions/51233/how-can-i-retrieve-the-page-title-of-a-webpage-using-python

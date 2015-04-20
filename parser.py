@@ -1,5 +1,6 @@
 import json
 import re
+import requests
 
 
 def ensure_key(func):

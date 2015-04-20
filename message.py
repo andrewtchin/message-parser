@@ -10,12 +10,18 @@ from bs4 import BeautifulSoup
 class Message(object):
     """This class parses a message and finds selected message attributes.
 
+    Truncates messages longer than Message.MAX_MESSAGE_LEN.
+
     Attributes:
         message (str): Contents of the message.
     """
+    MAX_MESSAGE_LEN = 1024000
 
     def __init__(self, message=''):
-        self.message = message
+        if len(message) > Message.MAX_MESSAGE_LEN:
+            self.message = message[:Message.MAX_MESSAGE_LEN]
+        else:
+            self.message = message
 
     @staticmethod
     def check_token(token):
@@ -29,7 +35,7 @@ class Message(object):
             MatchObject if match present, None otherwise.
         """
         regex = re.compile(r"(?P<mentions>^@\w+)|"
-                           r"(?P<emoticons>^\(\w{1,15}\)$)|"
+                           r"(?P<emoticons>.*\(\w{1,15}\).*)|"
                            r"(?P<links>^https?://([-\w\.]+)+(:\d+)?(/([\w/_\.]*(\?\S+)?)?)?$)")
         return regex.match(token)
 
@@ -105,7 +111,9 @@ class Message(object):
         Returns:
             Emoticon string.
         """
-        return token.strip('()')
+        emoticon_start = token.split('(')
+        emoticon_end = emoticon_start[1].split(')')
+        return emoticon_end[0]
 
     def get_link(self, url):
         """Return link metadata including title of the URL.
@@ -146,7 +154,7 @@ class Message(object):
 def main():
     """Parse input from stdin as a Message to extract attributes."""
     test_input = '@foo hello world (allthethings) @bar!bar https://example.com\
-                  (notbad) ftp://filez.com asdf@asdf.com fake@fake,com\
+                  a(notbad)a !(laa)@ ftp://filez.com asdf@asdf.com fake@fake,com\
                   http://google.com https://en.wikipedia.org/wiki/Computer bye!'
 
     while True:

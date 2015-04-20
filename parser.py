@@ -39,11 +39,11 @@ class Message(object):
         for token in tokens:
             result = regex.match(token)
             if result:
-                if result.get('emoticon'):
+                if result.groupdict().get('emoticon'):
                     self.add_attribute('emoticons', self.get_emoticon(token))
-                elif result.get('mention'):
+                elif result.groupdict().get('mention'):
                     self.add_attribute('mentions', self.get_mention(token))
-                elif result.get('url'):
+                elif result.groupdict().get('url'):
                     self.add_attribute('links', self.get_link(token))
 
     def parse(self):

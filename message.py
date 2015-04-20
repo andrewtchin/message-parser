@@ -1,5 +1,4 @@
-"""
-This module extracts information from a message string.
+"""This module extracts information from a message string.
 """
 
 import json
@@ -10,17 +9,14 @@ from bs4 import BeautifulSoup
 
 
 class Message(object):
-    """
-    This class parses a message and stores selected message attributes.
+    """This class parses a message and stores selected message attributes.
 
     Attributes:
         message (str): Contents of the message.
-        data (dict): Attributes extracted from the message.
     """
 
-    def __init__(self, message):
+    def __init__(self, message=''):
         self.message = message
-        self.data = {}
 
     def check_token(self, token):
         """Check for the presence of desired data in the token.
@@ -34,28 +30,49 @@ class Message(object):
         return regex.match(token)
 
     def parse(self):
-        """Extract desired information from the message."""
-        tokens = self.message.split()
-        for token in tokens:
+        """Return desired information from the message.
+
+        Returns:
+            Dict of attributes extracted from the message.
+        """
+        def map_token(token):
+            """Return a tuple with the token type and token.
+
+            Args:
+                token (str): Token to search.
+            Returns:
+                (token_type, token)
+            """
             result = self.check_token(token)
             if result:
                 if result.groupdict().get('emoticons'):
-                    self.add_attribute('emoticons', self.get_emoticon(token))
+                    return ('emoticons', self.get_emoticon(token))
                 elif result.groupdict().get('mentions'):
-                    self.add_attribute('mentions', self.get_mention(token))
+                    return ('mentions', self.get_mention(token))
                 elif result.groupdict().get('links'):
-                    self.add_attribute('links', self.get_link(token))
+                    return ('links', self.get_link(token))
 
-    def add_attribute(self, key, value):
+        tokens = self.message.split()
+        tuples = map(map_token, tokens)
+        tuples = filter(lambda x: x is not None, tuples)
+
+        data = {}
+        for key, value in tuples:
+            self.add_attribute(data, key, value)
+        return data
+
+    @staticmethod
+    def add_attribute(data, key, value):
         """Store a message attribute.
 
         Args:
+            data (dict): Dict to store the key/value.
             key (str): Type of attribute.
             value (str): Value of attribute extracted from token.
         """
-        if not self.data.get(key):
-            self.data[key] = list()
-        self.data[key].append(value)
+        if key not in data.keys():
+            data[key] = list()
+        data[key].append(value)
 
     def get_mention(self, token):
         """Return username from a mention token.
@@ -86,7 +103,7 @@ class Message(object):
             Dict of URL and page title.
         """
         title = self.get_title(url)
-        return {'url': url, "title": title}
+        return {'url': url, 'title': title}
 
     def get_title(self, url):
         """Return title of the URL.
@@ -94,19 +111,14 @@ class Message(object):
         Args:
             url (str): HTTP(S) URL to get page title from.
         Returns:
-            Title string.
+            Title string or None if page not available.
         """
-        page = BeautifulSoup(urllib2.urlopen(url))
-        return page.title.string
-
-    def to_json(self):
-        """Return JSON representation of message attributes.
-
-        Returns:
-            JSON of message attributes.
-        """
-        self.parse()
-        return json.dumps(self.data, sort_keys=True, indent=2)
+        try:
+            page = urllib2.urlopen(url)
+            soup = BeautifulSoup(page)
+            return soup.title.string
+        except urllib2.URLError:
+            return None
 
 
 def main():
@@ -115,11 +127,11 @@ def main():
                   http://google.com https://en.wikipedia.org/wiki/Computer bye!'
 
     while True:
-        input = raw_input('>')
-        if not input:
-            input = test_input
-        message = Message(input)
-        output = message.to_json()
+        input_str = raw_input('>')
+        if not input_str:
+            input_str = test_input
+        message = Message(input_str)
+        output = json.dumps(message.parse(), sort_keys=True, indent=2)
         print(output)
 
 

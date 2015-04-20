@@ -1,4 +1,7 @@
+import string
 import unittest
+
+import rstr
 
 from message import Message
 
@@ -14,6 +17,22 @@ class TestMessage(unittest.TestCase):
 
     def setUp(self):
         self.message = Message()
+
+    def test_message_len(self):
+        message_len = Message.MAX_MESSAGE_LEN + 1
+        self.message = Message(rstr.rstr(string.ascii_letters,
+                                         message_len))
+        self.assertEqual(len(self.message.message), Message.MAX_MESSAGE_LEN)
+
+        message_len = Message.MAX_MESSAGE_LEN
+        self.message = Message(rstr.rstr(string.ascii_letters,
+                                         message_len))
+        self.assertEqual(len(self.message.message), Message.MAX_MESSAGE_LEN)
+
+        message_len = Message.MAX_MESSAGE_LEN - 1
+        self.message = Message(rstr.rstr(string.ascii_letters,
+                                         message_len))
+        self.assertEqual(len(self.message.message), message_len)
 
     def test_check_token_mention(self):
         result = self.message.check_token(TestMessage.MENTION).groupdict()
@@ -34,6 +53,13 @@ class TestMessage(unittest.TestCase):
         result = self.message.check_token(max_emoticon).groupdict()
         emoticon_dict = {'mentions': None,
                          'emoticons': max_emoticon,
+                         'links': None}
+        self.assertEqual(result, emoticon_dict)
+
+        embedded_emoticon = 'bbb(a)bbb'
+        result = self.message.check_token(embedded_emoticon).groupdict()
+        emoticon_dict = {'mentions': None,
+                         'emoticons': embedded_emoticon,
                          'links': None}
         self.assertEqual(result, emoticon_dict)
 
@@ -92,6 +118,9 @@ class TestMessage(unittest.TestCase):
     def test_get_emoticon(self):
         result = self.message.get_emoticon(TestMessage.EMOTICON)
         self.assertEqual(result, TestMessage.EMOTICON_RESULT)
+
+        result = self.message.get_emoticon('bbb(x)bbb(y)bbb')
+        self.assertEqual(result, 'x')
 
     def test_get_link(self):
         result = self.message.get_link(TestMessage.LINK)

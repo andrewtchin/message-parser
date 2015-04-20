@@ -97,6 +97,9 @@ class Message(object):
     def get_emoticon(token):
         """Return emoticon from an emoticon token.
 
+        Emoticon token is alphanumeric characters enclosed by
+        parenthesis.
+
         Args:
             token (str): Token containing emoticon.
         Returns:

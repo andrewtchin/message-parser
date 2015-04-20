@@ -20,11 +20,28 @@ class TestMessage(unittest.TestCase):
         self.assertEqual(result, mention_dict)
 
     def test_check_token_emoticon(self):
-        result = self.message.check_token(TestMessage.EMOTICON).groupdict()
+        min_emoticon = '(a)'
+        result = self.message.check_token(min_emoticon).groupdict()
         emoticon_dict = {'mentions': None,
-                         'emoticons': TestMessage.EMOTICON,
+                         'emoticons': min_emoticon,
                          'links': None}
         self.assertEqual(result, emoticon_dict)
+
+        max_emoticon = '(aaaaaaaaaaaaaaa)'
+        result = self.message.check_token(max_emoticon).groupdict()
+        emoticon_dict = {'mentions': None,
+                         'emoticons': max_emoticon,
+                         'links': None}
+        self.assertEqual(result, emoticon_dict)
+
+    def test_check_not_emoticon(self):
+        no_emoticon = '()'
+        result = self.message.check_token(no_emoticon)
+        self.assertEqual(result, None)
+
+        long_emoticon = '(aaaaaaaaaaaaaaaa)'
+        result = self.message.check_token(long_emoticon)
+        self.assertEqual(result, None)
 
     def test_check_token_link(self):
         result = self.message.check_token(TestMessage.LINK).groupdict()
@@ -62,6 +79,9 @@ class TestMessage(unittest.TestCase):
 
     def test_get_mention(self):
         result = self.message.get_mention(TestMessage.MENTION)
+        self.assertEqual(result, 'test_mention')
+
+        result = self.message.get_mention(''.join([TestMessage.MENTION, '!']))
         self.assertEqual(result, 'test_mention')
 
     def test_get_emoticon(self):

@@ -11,15 +11,6 @@ class Message(object):
         self.message = message
         self.data = {}
 
-    def parse_string(self, tokens):
-        for token in tokens:
-            if token.startswith('@'):
-                self.add_attribute('mentions', self.get_mention(token))
-            elif token.startswith('(') and token.endswith(')'):
-                self.add_attribute('emoticons', self.get_emoticon(token))
-            elif self.check_url(token):
-                self.add_attribute('links', self.get_link(token))
-
     def parse_regex(self, tokens):
         regex = re.compile(r'(?P<mention>^@\w+$)|(?P<emoticon>^\(\w+\)$)|(?P<url>^https?://([-\w\.]+)+(:\d+)?(/([\w/_\.]*(\?\S+)?)?)?$)')
         for token in tokens:

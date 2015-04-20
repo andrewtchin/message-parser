@@ -1,7 +1,4 @@
-"""This module extracts information from a message string.
-
-TODO
-"""
+"""This module extracts information from a message string."""
 
 import json
 import re
@@ -11,7 +8,7 @@ from bs4 import BeautifulSoup
 
 
 class Message(object):
-    """This class parses a message and stores selected message attributes.
+    """This class parses a message and finds selected message attributes.
 
     Attributes:
         message (str): Contents of the message.
@@ -22,6 +19,8 @@ class Message(object):
 
     def check_token(self, token):
         """Check for the presence of desired data in the token.
+
+        Searches for mentions, emoticons, and HTTP(S) links.
 
         Args:
             token (str): Token to search.
@@ -79,12 +78,16 @@ class Message(object):
     def get_mention(self, token):
         """Return username from a mention token.
 
+        Mention token starts with '@' and ends with non-alphanumeric
+        character.
+
         Args:
             token (str): Token containining mentioned username.
         Returns:
             Username string.
         """
-        return re.sub(r'\W+', '', token)
+        subtokens = re.findall(r'\w+', token)
+        return subtokens[0]
 
     def get_emoticon(self, token):
         """Return emoticon from an emoticon token.
@@ -122,9 +125,17 @@ class Message(object):
         except urllib2.URLError:
             return None
 
+    def to_json(self):
+        """Parse message and return JSON of extracted message attributes.
+
+        Returns:
+            JSON of extracted message attributes.
+        """
+        return json.dumps(self.parse(), sort_keys=True, indent=2)
+
 
 def main():
-    test_input = '@foo hello world (allthethings) @bar https://example.com\
+    test_input = '@foo hello world (allthethings) @bar!bar https://example.com\
                   (notbad) ftp://filez.com asdf@asdf.com fake@fake,com\
                   http://google.com https://en.wikipedia.org/wiki/Computer bye!'
 
@@ -133,7 +144,7 @@ def main():
         if not input_str:
             input_str = test_input
         message = Message(input_str)
-        output = json.dumps(message.parse(), sort_keys=True, indent=2)
+        output = message.to_json()
         print(output)
 
 

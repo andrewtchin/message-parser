@@ -17,7 +17,8 @@ class Message(object):
     def __init__(self, message=''):
         self.message = message
 
-    def check_token(self, token):
+    @staticmethod
+    def check_token(token):
         """Check for the presence of desired data in the token.
 
         Searches for mentions, emoticons, and HTTP(S) links.
@@ -27,7 +28,9 @@ class Message(object):
         Returns:
             MatchObject if match present, None otherwise.
         """
-        regex = re.compile(r'(?P<mentions>^@\w+)|(?P<emoticons>^\(\w{1,15}\)$)|(?P<links>^https?://([-\w\.]+)+(:\d+)?(/([\w/_\.]*(\?\S+)?)?)?$)')
+        regex = re.compile(r"(?P<mentions>^@\w+)|"
+                           r"(?P<emoticons>^\(\w{1,15}\)$)|"
+                           r"(?P<links>^https?://([-\w\.]+)+(:\d+)?(/([\w/_\.]*(\?\S+)?)?)?$)")
         return regex.match(token)
 
     def parse(self):
@@ -55,7 +58,7 @@ class Message(object):
 
         tokens = self.message.split()
         tuples = map(map_token, tokens)
-        tuples = filter(lambda x: x is not None, tuples)
+        tuples = [x for x in tuples if x is not None]
 
         data = {}
         for key, value in tuples:
@@ -75,7 +78,8 @@ class Message(object):
             data[key] = list()
         data[key].append(value)
 
-    def get_mention(self, token):
+    @staticmethod
+    def get_mention(token):
         """Return username from a mention token.
 
         Mention token starts with '@' and ends with non-alphanumeric
@@ -89,7 +93,8 @@ class Message(object):
         subtokens = re.findall(r'\w+', token)
         return subtokens[0]
 
-    def get_emoticon(self, token):
+    @staticmethod
+    def get_emoticon(token):
         """Return emoticon from an emoticon token.
 
         Args:
@@ -110,7 +115,8 @@ class Message(object):
         title = self.get_title(url)
         return {'url': url, 'title': title}
 
-    def get_title(self, url):
+    @staticmethod
+    def get_title(url):
         """Return title of the URL.
 
         Args:
@@ -135,6 +141,7 @@ class Message(object):
 
 
 def main():
+    """Parse input from stdin as a Message to extract attributes."""
     test_input = '@foo hello world (allthethings) @bar!bar https://example.com\
                   (notbad) ftp://filez.com asdf@asdf.com fake@fake,com\
                   http://google.com https://en.wikipedia.org/wiki/Computer bye!'
@@ -145,7 +152,7 @@ def main():
             input_str = test_input
         message = Message(input_str)
         output = message.to_json()
-        print(output)
+        print output
 
 
 if __name__ == '__main__':

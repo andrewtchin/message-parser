@@ -2,6 +2,8 @@
 
 ### Summary
 
+This module accepts a string representing a chat message and extracts
+interesting information from it.
 
 ### How to run
 
@@ -11,12 +13,45 @@ cd message-parser
 virtualenv venv
 source venv/bin/activate
 pip install -r requirements.txt
-python parser.py
+python message.py
 ```
 
+
+Enter the message string to parse at the prompt.
+
 ### Unittests
+
+Run unittests:
 ```
+nosetests
 ```
+
+### Extracting message attributes
+
+The message is searched based on a regex that defines the
+attributes that we want to extract. This provides a performance
+advantage over repeated searching of the tokenized strings for the
+delimiting characters of interesting tokens.
+
+To modify the attributes we search for, add a regex group
+that matches the tokenized attribute.
+
+### Specifications
+* Mentions - start with '@' and end with non-alphanumeric character
+* Emoticons - 1 to 15 alphanumeric characters enclosed by parenthesis
+* Links - URL and page title
+
+### Assumptions
+* No upper bound on length of username.
+* URLs are HTTP(S) because retrieving titles for other protocols would
+not be relevant.
+
+### Limitations
+
+* No input validation is performed on the input message.
+* URL regex will only match HTTP(S) URLs. I used a simple regex, but the
+regex could be improved to match other protocols or cases.
+* Does not handle matching attributes that span multiple tokens.
 
 ### Sources
 https://rushi.wordpress.com/2008/04/14/simple-regex-for-matching-urls/

@@ -1,4 +1,6 @@
 """This module extracts information from a message string.
+
+TODO
 """
 
 import json
@@ -26,7 +28,7 @@ class Message(object):
         Returns:
             MatchObject if match present, None otherwise.
         """
-        regex = re.compile(r'(?P<mentions>^@\w+$)|(?P<emoticons>^\(\w+\)$)|(?P<links>^https?://([-\w\.]+)+(:\d+)?(/([\w/_\.]*(\?\S+)?)?)?$)')
+        regex = re.compile(r'(?P<mentions>^@\w+)|(?P<emoticons>^\(\w{1,15}\)$)|(?P<links>^https?://([-\w\.]+)+(:\d+)?(/([\w/_\.]*(\?\S+)?)?)?$)')
         return regex.match(token)
 
     def parse(self):
@@ -82,7 +84,7 @@ class Message(object):
         Returns:
             Username string.
         """
-        return token.lstrip('@')
+        return re.sub(r'\W+', '', token)
 
     def get_emoticon(self, token):
         """Return emoticon from an emoticon token.

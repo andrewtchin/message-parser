@@ -5,15 +5,6 @@ import urllib2
 from bs4 import BeautifulSoup
 
 
-def ensure_key(func):
-    def wrapper(*args):
-        key = args[1]
-        if not args[0].data.get(key):
-            args[0].data[key] = list()
-        return func(*args)
-    return wrapper
-
-
 class Message(object):
 
     def __init__(self, message):
@@ -29,7 +20,7 @@ class Message(object):
             elif self.check_url(token):
                 self.add_attribute('links', self.get_link(token))
 
-    def parse_re(self, tokens):
+    def parse_regex(self, tokens):
         regex = re.compile(r'(?P<mention>^@\w+$)|(?P<emoticon>^\(\w+\)$)|(?P<url>^https?://([-\w\.]+)+(:\d+)?(/([\w/_\.]*(\?\S+)?)?)?$)')
         for token in tokens:
             result = regex.match(token)
@@ -43,11 +34,12 @@ class Message(object):
 
     def parse(self):
         tokens = self.message.split()
-        self.parse_re(tokens)
+        self.parse_regex(tokens)
         return json.dumps(self.data, sort_keys=True, indent=2)
 
-    @ensure_key
     def add_attribute(self, key, value):
+        if not self.data.get(key):
+            self.data[key] = list()
         self.data[key].append(value)
 
     def get_mention(self, token):

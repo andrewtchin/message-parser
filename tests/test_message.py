@@ -96,12 +96,12 @@ class TestMessage(unittest.TestCase):
     def test_get_link(self):
         result = self.message.get_link(TestMessage.LINK)
         link_dict = {'url': TestMessage.LINK,
-                     'title': 'Example Domain'}
+                     'title': TestMessage.LINK_TITLE}
         self.assertEqual(result, link_dict)
 
     def test_get_title(self):
         title = self.message.get_title(TestMessage.LINK)
-        self.assertEqual(title, 'Example Domain')
+        self.assertEqual(title, TestMessage.LINK_TITLE)
 
     def test_get_title_unavailable(self):
         title = self.message.get_title('http://example')

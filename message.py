@@ -15,7 +15,7 @@ class Message(object):
     Attributes:
         message (str): Contents of the message.
     """
-    MAX_MESSAGE_LEN = 1024000
+    MAX_MESSAGE_LEN = 1000000
 
     def __init__(self, message=''):
         if len(message) > Message.MAX_MESSAGE_LEN:
@@ -101,10 +101,9 @@ class Message(object):
 
     @staticmethod
     def get_emoticon(token):
-        """Return emoticon from an emoticon token.
+        """Return the first emoticon from an emoticon token.
 
-        Emoticon token is alphanumeric characters enclosed by
-        parenthesis.
+        Emoticon is alphanumeric characters enclosed by parenthesis.
 
         Args:
             token (str): Token containing emoticon.
@@ -153,14 +152,8 @@ class Message(object):
 
 def main():
     """Parse input from stdin as a Message to extract attributes."""
-    test_input = '@foo hello world (allthethings) @bar!bar https://example.com\
-                  a(notbad)a !(laa)@ ftp://filez.com asdf@asdf.com fake@fake,com\
-                  http://google.com https://en.wikipedia.org/wiki/Computer bye!'
-
     while True:
         input_str = raw_input('>')
-        if not input_str:
-            input_str = test_input
         message = Message(input_str)
         output = message.to_json()
         print output

@@ -36,7 +36,7 @@ class TestMessage(unittest.TestCase):
 
     def test_check_token_mention(self):
         result = self.message.check_token(TestMessage.MENTION).groupdict()
-        mention_dict = {'mentions': TestMessage.MENTION,
+        mention_dict = {'mentions': TestMessage.MENTION_RESULT,
                         'emoticons': None,
                         'links': None}
         self.assertEqual(result, mention_dict)
@@ -45,21 +45,21 @@ class TestMessage(unittest.TestCase):
         min_emoticon = '(a)'
         result = self.message.check_token(min_emoticon).groupdict()
         emoticon_dict = {'mentions': None,
-                         'emoticons': min_emoticon,
+                         'emoticons': 'a',
                          'links': None}
         self.assertEqual(result, emoticon_dict)
 
         max_emoticon = '(aaaaaaaaaaaaaaa)'
         result = self.message.check_token(max_emoticon).groupdict()
         emoticon_dict = {'mentions': None,
-                         'emoticons': max_emoticon,
+                         'emoticons': 'aaaaaaaaaaaaaaa',
                          'links': None}
         self.assertEqual(result, emoticon_dict)
 
         embedded_emoticon = 'bbb(a)bbb'
         result = self.message.check_token(embedded_emoticon).groupdict()
         emoticon_dict = {'mentions': None,
-                         'emoticons': embedded_emoticon,
+                         'emoticons': 'a',
                          'links': None}
         self.assertEqual(result, emoticon_dict)
 
@@ -105,22 +105,6 @@ class TestMessage(unittest.TestCase):
         self.message.add_attribute(data, 'key', 'value2')
         data_dict2 = {'key': ['value1', 'value2']}
         self.assertEqual(data, data_dict2)
-
-    def test_get_mention(self):
-        result = self.message.get_mention(TestMessage.MENTION)
-        self.assertEqual(result, TestMessage.MENTION_RESULT)
-
-        result = self.message.get_mention(''.join([TestMessage.MENTION,
-                                                   '!',
-                                                   'test']))
-        self.assertEqual(result, TestMessage.MENTION_RESULT)
-
-    def test_get_emoticon(self):
-        result = self.message.get_emoticon(TestMessage.EMOTICON)
-        self.assertEqual(result, TestMessage.EMOTICON_RESULT)
-
-        result = self.message.get_emoticon('bbb(x)bbb(y)bbb')
-        self.assertEqual(result, 'x')
 
     def test_get_link(self):
         result = self.message.get_link(TestMessage.LINK)

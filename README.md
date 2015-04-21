@@ -64,6 +64,16 @@ last emoticon within the token.
 * Does not handle matching emoticon and mention in a single token. Matches the
 first attribute within the token.
 
+### Scaling
+
+For larger messages or higher volumes of messages, multiprocessing could be used.
+Message strings or partial message strings of large messages can be queued with
+a message ID and number of parts.
+A process pool can pull from the shared queue, map all the interesting tokens,
+and push the result to a result queue. When all results for a given message ID
+are complete, results are merged into the final result dict for the message and
+returned.
+
 ### Sources
 
 https://rushi.wordpress.com/2008/04/14/simple-regex-for-matching-urls/

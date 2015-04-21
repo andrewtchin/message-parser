@@ -27,9 +27,10 @@ nosetests
 
 ### Extracting message attributes
 
-The message is searched based on a regex that defines the
-attributes that we want to extract. To modify the attributes we search for,
-add a regex group to ATTR_REGEX.
+The message is searched based on regexes that define the attributes
+that we want to extract. To modify the attributes we search for,
+add a compiled regex and the key for the attribute it matches to the
+searches list in parse().
 
 ### Specifications
 
@@ -42,12 +43,14 @@ add a regex group to ATTR_REGEX.
 ### Assumptions
 
 * Mention token must begin with '@' - cannot be embedded within a token.
-* Link token must begin with http:// or https://.
 * No upper bound on length of username, subject to max message length.
 * URLs are HTTP(S) because retrieving titles for other protocols would
 not be relevant.
-* Input validation is handled by the regex that specifies the attributes
-we are interested in and will ignore any tokens that do not match.
+* Link token must begin with http:// or https://.
+* Input validation is handled by the regexes that specify the attributes
+we are interested in and will ignore parts of the message that do not match.
+* The output list for each attribute is not a set - contains duplicate values
+if duplicate matches are present.
 
 ### Limitations
 

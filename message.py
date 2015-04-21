@@ -1,10 +1,14 @@
 """This module extracts information from a message string."""
 
 import json
+import logging
 import re
+import sys
 import urllib2
 
 from bs4 import BeautifulSoup
+
+LOG = logging.getLogger(__name__)
 
 
 class Message(object):
@@ -23,6 +27,7 @@ class Message(object):
 
     def __init__(self, message=''):
         if len(message) > Message.MAX_MESSAGE_LEN:
+            LOG.warning('Long message truncated.')
             self.message = message[:Message.MAX_MESSAGE_LEN]
         else:
             self.message = message
@@ -37,6 +42,7 @@ class Message(object):
         """
         matches = regex.findall(self.message)
         if matches:
+            LOG.debug('Matches for %s: %s', key, str(matches))
             result[key] = matches
 
     def parse(self):
@@ -86,6 +92,7 @@ class Message(object):
             soup = BeautifulSoup(page)
             return soup.title.string
         except urllib2.URLError:
+            LOG.warning('Unable to fetch title for %s', url)
             return None
 
     def to_json(self):
@@ -99,6 +106,8 @@ class Message(object):
 
 def main():
     """Parse input from stdin as a Message to extract attributes."""
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
     while True:
         input_str = raw_input('>')
         message = Message(input_str)

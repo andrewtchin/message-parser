@@ -40,6 +40,11 @@ class TestMessage(unittest.TestCase):
         mention_dict = {'mentions': [TestMessage.MENTION_RESULT]}
         self.assertEqual(result, mention_dict)
 
+        embedded_mention = 'aaa@bbb'
+        self.message = Message(embedded_mention)
+        result = self.message.parse()
+        self.assertEqual(result, {})
+
     def test_parse_emoticon(self):
         min_emoticon = '(a)'
         self.message = Message(min_emoticon)
@@ -56,7 +61,7 @@ class TestMessage(unittest.TestCase):
         embedded_emoticon = 'bbb(a)bbb(x)bbb(a)bbb'
         self.message = Message(embedded_emoticon)
         result = self.message.parse()
-        emoticon_dict = {'emoticons': ['a', 'x']}
+        emoticon_dict = {'emoticons': ['a', 'x', 'a']}
         self.assertEqual(result, emoticon_dict)
 
     def test_parse_not_emoticon(self):

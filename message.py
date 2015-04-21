@@ -11,7 +11,7 @@ class Message(object):
     """This class parses a message and finds mentions, emoticons, and links.
 
     Truncates messages longer than Message.MAX_MESSAGE_LEN.
-    Attributes to extract are defined by Message.ATTR_REGEX.
+    Attributes to extract are defined by compiled regexes.
 
     Attributes:
         message (str): Contents of the message.

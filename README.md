@@ -60,7 +60,9 @@ we are interested in and will ignore any tokens that do not match.
 regex could be improved to match other protocols or cases.
 * Does not handle matching attributes that span multiple tokens.
 * Does not handle matching multiple emoticons within a single token. Matches the
-first emoticon within the token.
+last emoticon within the token.
+* Does not handle matching emoticon and mention in a single token. Matches the
+first attribute within the token.
 
 ### Sources
 

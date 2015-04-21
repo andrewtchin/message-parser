@@ -34,9 +34,9 @@ class Message(object):
         Returns:
             MatchObject if match present, None otherwise.
         """
-        regex = re.compile(r"(?P<mentions>^@\w+)|"
-                           r"(?P<emoticons>.*\(\w{1,15}\).*)|"
-                           r"(?P<links>^https?://([-\w\.]+)+(:\d+)?(/([\w/_\.]*(\?\S+)?)?)?$)")
+        regex = re.compile(r"(?#mentions)^@(?P<mentions>\w+)|"
+                           r"(?#emoticons).*\((?P<emoticons>\w{1,15})\).*|"
+                           r"(?#links)(?i)\b(?P<links>^https?://([-\w\.]+)+(:\d+)?(/([\w/_\.]*(\?\S+)?)?)?$)")
         return regex.match(token)
 
     def parse(self):
@@ -56,9 +56,9 @@ class Message(object):
             result = self.check_token(token)
             if result:
                 if result.groupdict().get('emoticons'):
-                    return ('emoticons', self.get_emoticon(token))
+                    return ('emoticons', result.groupdict()['emoticons'])
                 elif result.groupdict().get('mentions'):
-                    return ('mentions', self.get_mention(token))
+                    return ('mentions', result.groupdict()['mentions'])
                 elif result.groupdict().get('links'):
                     return ('links', self.get_link(token))
 
@@ -83,36 +83,6 @@ class Message(object):
         if key not in data.keys():
             data[key] = list()
         data[key].append(value)
-
-    @staticmethod
-    def get_mention(token):
-        """Return username from a mention token.
-
-        Mention token starts with '@' and ends with non-alphanumeric
-        character.
-
-        Args:
-            token (str): Token containining mentioned username.
-        Returns:
-            Username string.
-        """
-        subtokens = re.findall(r'\w+', token)
-        return subtokens[0]
-
-    @staticmethod
-    def get_emoticon(token):
-        """Return the first emoticon from an emoticon token.
-
-        Emoticon is alphanumeric characters enclosed by parenthesis.
-
-        Args:
-            token (str): Token containing emoticon.
-        Returns:
-            Emoticon string.
-        """
-        emoticon_start = token.split('(')
-        emoticon_end = emoticon_start[1].split(')')
-        return emoticon_end[0]
 
     def get_link(self, url):
         """Return link metadata including title of the URL.

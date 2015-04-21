@@ -16,9 +16,7 @@ pip install -r requirements.txt
 python message.py
 ```
 
-
 Enter the message string to parse at the prompt.
-Press Enter without providing input to use provided sample input string.
 
 ### Unittests
 
@@ -47,15 +45,14 @@ that matches the tokenized attribute.
 
 ### Assumptions
 
-* Message string will be truncated to a max message length (default 1024000 bytes).
-* Mention token must begin with '@'
+* Message string will be truncated to max length of 1000000 bytes.
+* Mention token must begin with '@'.
 * Link token must begin with http:// or https://.
 * No upper bound on length of username, subject to max message length.
 * URLs are HTTP(S) because retrieving titles for other protocols would
 not be relevant.
 * Input validation is handled by the regex that specifies the attributes
 we are interested in and will ignore any tokens that do not match.
-
 
 ### Limitations
 

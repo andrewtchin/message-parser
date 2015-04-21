@@ -34,49 +34,47 @@ class TestMessage(unittest.TestCase):
                                          message_len))
         self.assertEqual(len(self.message.message), message_len)
 
-    def test_check_token_mention(self):
-        result = self.message.check_token(TestMessage.MENTION).groupdict()
-        mention_dict = {'mentions': TestMessage.MENTION_RESULT,
-                        'emoticons': None,
-                        'links': None}
+    def test_parse_mention(self):
+        self.message = Message(TestMessage.MENTION)
+        result = self.message.parse()
+        mention_dict = {'mentions': [TestMessage.MENTION_RESULT]}
         self.assertEqual(result, mention_dict)
 
-    def test_check_token_emoticon(self):
+    def test_parse_emoticon(self):
         min_emoticon = '(a)'
-        result = self.message.check_token(min_emoticon).groupdict()
-        emoticon_dict = {'mentions': None,
-                         'emoticons': 'a',
-                         'links': None}
+        self.message = Message(min_emoticon)
+        result = self.message.parse()
+        emoticon_dict = {'emoticons': ['a']}
         self.assertEqual(result, emoticon_dict)
 
         max_emoticon = '(aaaaaaaaaaaaaaa)'
-        result = self.message.check_token(max_emoticon).groupdict()
-        emoticon_dict = {'mentions': None,
-                         'emoticons': 'aaaaaaaaaaaaaaa',
-                         'links': None}
+        self.message = Message(max_emoticon)
+        result = self.message.parse()
+        emoticon_dict = {'emoticons': ['aaaaaaaaaaaaaaa']}
         self.assertEqual(result, emoticon_dict)
 
-        embedded_emoticon = 'bbb(a)bbb'
-        result = self.message.check_token(embedded_emoticon).groupdict()
-        emoticon_dict = {'mentions': None,
-                         'emoticons': 'a',
-                         'links': None}
+        embedded_emoticon = 'bbb(a)bbb(x)bbb(a)bbb'
+        self.message = Message(embedded_emoticon)
+        result = self.message.parse()
+        emoticon_dict = {'emoticons': ['a', 'x']}
         self.assertEqual(result, emoticon_dict)
 
-    def test_check_not_emoticon(self):
+    def test_parse_not_emoticon(self):
         no_emoticon = '()'
-        result = self.message.check_token(no_emoticon)
-        self.assertEqual(result, None)
+        self.message = Message(no_emoticon)
+        result = self.message.parse()
+        self.assertEqual(result, {})
 
         long_emoticon = '(aaaaaaaaaaaaaaaa)'
-        result = self.message.check_token(long_emoticon)
-        self.assertEqual(result, None)
+        self.message = Message(long_emoticon)
+        result = self.message.parse()
+        self.assertEqual(result, {})
 
-    def test_check_token_link(self):
-        result = self.message.check_token(TestMessage.LINK).groupdict()
-        link_dict = {'mentions': None,
-                     'emoticons': None,
-                     'links': TestMessage.LINK}
+    def test_parse_link(self):
+        self.message = Message(TestMessage.LINK)
+        result = self.message.parse()
+        link_dict = {'links': [{'title': TestMessage.LINK_TITLE,
+                                'url': TestMessage.LINK}]}
         self.assertEqual(result, link_dict)
 
     def test_parse(self):
@@ -89,16 +87,6 @@ class TestMessage(unittest.TestCase):
                         'links': [{'title': TestMessage.LINK_TITLE,
                                    'url': TestMessage.LINK}]}
         self.assertEqual(result, message_dict)
-
-    def test_add_attribute(self):
-        data = {}
-        self.message.add_attribute(data, 'key', 'value1')
-        data_dict1 = {'key': ['value1']}
-        self.assertEqual(data, data_dict1)
-
-        self.message.add_attribute(data, 'key', 'value2')
-        data_dict2 = {'key': ['value1', 'value2']}
-        self.assertEqual(data, data_dict2)
 
     def test_get_link(self):
         result = self.message.get_link(TestMessage.LINK)

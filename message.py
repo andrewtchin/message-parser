@@ -1,5 +1,6 @@
 """This module extracts information from a message string."""
 
+from collections import defaultdict
 import json
 import re
 import urllib2
@@ -8,14 +9,18 @@ from bs4 import BeautifulSoup
 
 
 class Message(object):
-    """This class parses a message and finds selected message attributes.
+    """This class parses a message and finds mentions, emoticons, and links.
 
     Truncates messages longer than Message.MAX_MESSAGE_LEN.
+    Attributes to extract are defined by Message.ATTR_REGEX.
 
     Attributes:
         message (str): Contents of the message.
     """
     MAX_MESSAGE_LEN = 1000000
+    ATTR_REGEX = re.compile(r"^@(?P<mentions>\w+)"
+                            r"|\((?P<emoticons>\w{1,15})\)"
+                            r"|(?P<links>https?://([-\w\.]+)+(:\d+)?(/([\w/_\.]*(\?\S+)?)?)?)")
 
     def __init__(self, message=''):
         if len(message) > Message.MAX_MESSAGE_LEN:
@@ -23,66 +28,33 @@ class Message(object):
         else:
             self.message = message
 
-    @staticmethod
-    def check_token(token):
-        """Check for the presence of desired data in the token.
-
-        Searches for mentions, emoticons, and HTTP(S) links.
-
-        Args:
-            token (str): Token to search.
-        Returns:
-            MatchObject if match present, None otherwise.
-        """
-        regex = re.compile(r"(?#mentions)^@(?P<mentions>\w+)|"
-                           r"(?#emoticons).*\((?P<emoticons>\w{1,15})\).*|"
-                           r"(?#links)(?i)\b(?P<links>^https?://([-\w\.]+)+(:\d+)?(/([\w/_\.]*(\?\S+)?)?)?$)")
-        return regex.match(token)
-
     def parse(self):
         """Return desired information from the message.
+
+        Find mentions, emoticons, and HTTP(S) URLs.
 
         Returns:
             Dict of attributes extracted from the message.
         """
-        def map_token(token):
-            """Return a tuple with the token type and token.
+        matched_groupdicts = [match.groupdict()
+                              for match in Message.ATTR_REGEX.finditer(self.message)]
 
-            Args:
-                token (str): Token to search.
-            Returns:
-                (token_type, token)
-            """
-            result = self.check_token(token)
-            if result:
-                if result.groupdict().get('emoticons'):
-                    return ('emoticons', result.groupdict()['emoticons'])
-                elif result.groupdict().get('mentions'):
-                    return ('mentions', result.groupdict()['mentions'])
-                elif result.groupdict().get('links'):
-                    return ('links', self.get_link(token))
+        result = defaultdict(set)
+        for match_dict in matched_groupdicts:
+            for key, value in match_dict.iteritems():
+                if value is not None:
+                    result[key].add(value)
 
-        tokens = self.message.split()
-        tuples = map(map_token, tokens)
-        tuples = [x for x in tuples if x is not None]
+        # Convert sets of tokens to lists of tokens.
+        result = {key: list(value) for key, value in result.iteritems()}
 
-        data = {}
-        for key, value in tuples:
-            self.add_attribute(data, key, value)
-        return data
+        if result.get('links'):
+            enhanced_links = []
+            for link in result['links']:
+                enhanced_links.append(self.get_link(link))
+            result['links'] = enhanced_links
 
-    @staticmethod
-    def add_attribute(data, key, value):
-        """Store a message attribute.
-
-        Args:
-            data (dict): Dict to store the key/value.
-            key (str): Type of attribute.
-            value (str): Value of attribute extracted from token.
-        """
-        if key not in data.keys():
-            data[key] = list()
-        data[key].append(value)
+        return result
 
     def get_link(self, url):
         """Return link metadata including title of the URL.

@@ -84,16 +84,10 @@ class TestMessage(unittest.TestCase):
                                          TestMessage.EMOTICON,
                                          TestMessage.LINK])
         result = self.message.parse()
-        message_dict = {
-                           'mentions': [TestMessage.MENTION_RESULT],
-                           'emoticons': [TestMessage.EMOTICON_RESULT],
-                           'links': [
-                               {
-                                   'title': TestMessage.LINK_TITLE,
-                                   'url': TestMessage.LINK
-                               }
-                           ]
-                       }
+        message_dict = {'mentions': [TestMessage.MENTION_RESULT],
+                        'emoticons': [TestMessage.EMOTICON_RESULT],
+                        'links': [{'title': TestMessage.LINK_TITLE,
+                                   'url': TestMessage.LINK}]}
         self.assertEqual(result, message_dict)
 
     def test_add_attribute(self):
